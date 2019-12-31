@@ -1,9 +1,25 @@
-"""Модуль с исключениями"""
+"""Исключения для ошибок игровой логики."""
 
 
-class TamagochiIsGone(Exception):
-    """Ошибка при смерти тамагочи"""
+class GameError(Exception):
+    """Базовая ошибка игрового процесса."""
 
 
-class NotEnoughMoney(Exception):
-    """Ошибка когда не хватает монет для покупки"""
+class TamagochiIsGone(GameError):
+    """Ошибка при гибели питомца."""
+
+
+class NotEnoughMoney(GameError):
+    """Ошибка при недостаточном количестве монет."""
+
+
+class InvalidSelection(GameError, IndexError):
+    """Ошибка выбора отсутствующего товара или позиции."""
+
+
+class InvalidPrice(GameError, ValueError):
+    """Ошибка недопустимой стоимости товара."""
+
+
+class MedicineIsEmpty(GameError, ValueError):
+    """Ошибка использования закончившегося лекарства."""
