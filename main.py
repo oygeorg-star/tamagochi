@@ -31,7 +31,9 @@ def main():
     output = ''
 
     while True:
-        print(output)
+        if output:
+            print(output)
+            output = ''
 
         print(f"Сумка с едой: {game.food}")
         print(f"Сумка с лекарствами: {game.medicine}")
@@ -62,27 +64,62 @@ def main():
                 except TamagochiIsGone:
                     print('Питомец погиб. Игра окончена.')
                     break
+
             case "2":
                 try:
+                    food_count = len(game.food)
                     game.buy_food()
+                    if len(game.food) > food_count:
+                        output = 'Еда успешно куплена'
+                    else:
+                        output = 'Покупка еды не выполнена'
                 except NotEnoughMoney as error:
                     output = str(error)
 
             case "3":
                 try:
+                    medicine_count = len(game.medicine)
                     game.buy_medicine()
+                    if len(game.medicine) > medicine_count:
+                        output = 'Лекарство успешно куплено'
+                    else:
+                        output = 'Покупка лекарства не выполнена'
                 except NotEnoughMoney as error:
                     output = str(error)
+
             case "4":
                 try:
-                    game.feed_tamagochi()
+                    if not game.food:
+                        output = 'В инвентаре нет еды'
+                    else:
+                        food_count = len(game.food)
+                        game.feed_tamagochi()
+                        if len(game.food) < food_count:
+                            output = 'Вы покормили питомца'
                 except TamagochiIsGone:
                     print('Питомец погиб. Игра окончена.')
                     break
 
             case "5":
                 try:
-                    game.heal_tamagochi()
+                    if not game.medicine:
+                        output = 'В инвентаре нет лекарств'
+                    else:
+                        medicine_count = len(game.medicine)
+                        uses_before = [
+                            medicine.uses
+                            for medicine in game.medicine
+                        ]
+                        game.heal_tamagochi()
+                        uses_after = [
+                            medicine.uses
+                            for medicine in game.medicine
+                        ]
+                        if (len(game.medicine) < medicine_count
+                                or uses_before != uses_after):
+                            output = 'Вы вылечили питомца'
+                        else:
+                            output = 'Лечение не выполнено'
                 except TamagochiIsGone:
                     print('Питомец погиб. Игра окончена.')
                     break
@@ -102,6 +139,7 @@ def main():
                 except TamagochiIsGone:
                     print('Питомец погиб. Игра окончена.')
                     break
+
             case "0":
                 break
             case _:
