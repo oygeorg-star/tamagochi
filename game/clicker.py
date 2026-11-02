@@ -28,7 +28,13 @@ class SimpleRandomClicker(AbstractClicker):
     """Кликер со случайным количеством монет за нажатие."""
 
     def __init__(self, min_income: int, max_income: int) -> None:
-        """Установить минимальный и максимальный доход за клик."""
+        """
+        Устанавливает минимальный и максимальный доход за клик.
+
+        :param min_income: Минимальное количество монет за клик.
+        :param max_income: Максимальное количество монет за клик.
+        :return: None.
+        """
         self.min_income = min_income
         self.max_income = max_income
         self._income_per_click = 0

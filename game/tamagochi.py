@@ -20,12 +20,20 @@ class AbstractTamagochi(ABC):
 
     @abstractmethod
     def play(self) -> None:
-        """Абстрактный метод для игры с тамагочи"""
+        """
+        Абстрактный метод для игры с тамагочи.
+
+        :return: None.
+        """
         raise NotImplementedError
 
     @abstractmethod
     def rest(self) -> None:
-        """Абстрактный метод для отдыха тамагочи"""
+        """
+        Абстрактный метод для отдыха тамагочи.
+
+        :return: None.
+        """
         raise NotImplementedError
 
     @abstractmethod
@@ -78,7 +86,11 @@ class SimpleTamagochi(AbstractTamagochi):
     """Питомец с показателями здоровья, голода и энергии."""
 
     def __init__(self) -> None:
-        """Установить начальные показатели питомца."""
+        """
+        Устанавливает начальные показатели питомца.
+
+        :return: None.
+        """
         self.hp = 100
         self.hunger = 0
         self.energy = 100
@@ -86,7 +98,11 @@ class SimpleTamagochi(AbstractTamagochi):
 
     @property
     def status(self) -> dict[str, int]:
-        """Вернуть текущие показатели питомца."""
+        """
+        Возвращает текущие показатели питомца.
+
+        :return: Словарь с показателями здоровья, голода, энергии и усталости.
+        """
         return {
             'hp': self.hp,
             'hunger': self.hunger,
@@ -95,34 +111,65 @@ class SimpleTamagochi(AbstractTamagochi):
         }
 
     def is_alive(self) -> bool:
-        """Проверить, жив ли питомец."""
+        """
+        Проверяет, жив ли питомец.
+
+        :return: True, если питомец жив, иначе False.
+        """
         return self.hp > 0
 
     def is_sick(self) -> bool:
-        """Проверить, болеет ли питомец."""
+        """
+        Проверяет, болеет ли питомец.
+
+        :return: True, если здоровье ниже 30, иначе False.
+        """
         return self.hp < 30
 
     def feed(self, food: Food) -> None:
-        """Покормить питомца указанной едой."""
+        """
+        Кормит питомца и уменьшает показатель голода.
+
+        :param food: Объект еды для кормления питомца.
+        :return: None.
+        :raises TamagochiIsGone: Если питомец погиб после обновления.
+        """
         self.hunger = max(0, self.hunger - food.satiety)
         self.update()
 
     def play(self) -> None:
-        """Поиграть с питомцем, потратив энергию."""
+        """
+        Играет с питомцем, расходуя его энергию.
+
+        :return: None.
+        :raises TamagochiIsGone: Если питомец погиб после обновления.
+        """
         self.energy = max(0, self.energy - 15)
         self.hunger = min(100, self.hunger + 10)
         self.fatigue = min(100, self.fatigue + 10)
         self.update()
 
     def rest(self) -> None:
-        """Восстановить энергию питомца."""
+        """
+        Восстанавливает энергию питомца и уменьшает усталость.
+
+        :return: None.
+        :raises TamagochiIsGone: Если питомец погиб после обновления.
+        """
         restored_energy = 10 if self.is_sick() else 25
         self.energy = min(100, self.energy + restored_energy)
         self.fatigue = max(0, self.fatigue - 20)
         self.update()
 
     def heal(self, medicine: Medicine) -> None:
-        """Вылечить питомца, расходуя применение лекарства."""
+        """
+        Лечит питомца, расходуя одно применение лекарства.
+
+        :param medicine: Лекарство для восстановления здоровья.
+        :return: None.
+        :raises ValueError: Если лекарство закончилось.
+        :raises TamagochiIsGone: Если питомец погиб после обновления.
+        """
         if medicine.is_empty():
             raise ValueError('Лекарство закончилось')
 
@@ -131,7 +178,12 @@ class SimpleTamagochi(AbstractTamagochi):
         self.update()
 
     def update(self) -> None:
-        """Обновить показатели питомца после действия."""
+        """
+        Обновляет показатели питомца после взаимодействия.
+
+        :return: None.
+        :raises TamagochiIsGone: Если питомец погиб.
+        """
         if not self.is_alive():
             raise TamagochiIsGone('Питомец погиб')
 

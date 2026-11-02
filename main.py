@@ -7,7 +7,15 @@ from game.models import Food, Medicine
 from game.tamagochi import SimpleTamagochi
 
 
-def main():
+def main() -> None:
+    """
+    Запускает игровой цикл Тамагочи-кликера.
+
+    Обрабатывает команды пользователя и завершает игру
+    при гибели питомца или выборе выхода.
+
+    :return: None.
+    """
     all_food = [
         Food(name='Бургер', satiety=20, price=40),
         Food(name='Салат', satiety=10, price=20),
@@ -96,6 +104,8 @@ def main():
                         game.feed_tamagochi()
                         if len(game.food) < food_count:
                             output = 'Вы покормили питомца'
+                except ValueError as error:
+                    output = str(error)
                 except TamagochiIsGone:
                     print('Питомец погиб. Игра окончена.')
                     break

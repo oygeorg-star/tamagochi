@@ -19,7 +19,7 @@ class AbstractGame(ABC):
         clicker: AbstractClicker,
         all_food: list[Food],
         all_medicine: list[Medicine]
-    ):
+    ) -> None:
         """
         Абстрактный метод инициализации класса игры
 
@@ -27,6 +27,7 @@ class AbstractGame(ABC):
         :param clicker: экземпляр кликера
         :param all_food: все доступные варианты еды
         :param all_medicine: все доступные варианты лекарств
+        :return: None.
         """
         raise NotImplementedError
 
@@ -41,32 +42,32 @@ class AbstractGame(ABC):
 
     @abstractmethod
     def buy_food(self) -> None:
-        """Абстрактный метод для покупки еды"""
+        """Покупает еду. Возвращает None."""
         raise NotImplementedError
 
     @abstractmethod
     def buy_medicine(self) -> None:
-        """Абстрактный метод для покупки лекарства"""
+        """Покупает лекарство. Возвращает None."""
         raise NotImplementedError
 
     @abstractmethod
     def feed_tamagochi(self) -> None:
-        """Абстрактный метод для кормления тамагочи"""
+        """Кормит питомца. Возвращает None."""
         raise NotImplementedError
 
     @abstractmethod
     def heal_tamagochi(self) -> None:
-        """Абстрактный метод для лечения тамагочи"""
+        """Лечит питомца. Возвращает None."""
         raise NotImplementedError
 
     @abstractmethod
-    def rest_tamagochi(self):
-        """Абстрактный метод для отдыха тамагочи"""
+    def rest_tamagochi(self) -> None:
+        """Даёт питомцу отдохнуть. Возвращает None."""
         raise NotImplementedError
 
     @abstractmethod
-    def play_with_tamagochi(self):
-        """Абстрактный метод для игры с тамагочи"""
+    def play_with_tamagochi(self) -> None:
+        """Играет с питомцем. Возвращает None."""
         raise NotImplementedError
 
     @abstractmethod
@@ -109,7 +110,15 @@ class SimpleGame(AbstractGame):
         all_food: list[Food],
         all_medicine: list[Medicine]
     ) -> None:
-        """Инициализировать игру и доступные товары."""
+        """
+        Инициализирует игру, питомца, кликер и доступные товары.
+
+        :param tamagochi: Экземпляр питомца.
+        :param clicker: Экземпляр кликера.
+        :param all_food: Список доступной для покупки еды.
+        :param all_medicine: Список доступных лекарств.
+        :return: None.
+        """
         self.tamagochi = tamagochi
         self.clicker = clicker
         self.all_food = all_food
@@ -120,34 +129,59 @@ class SimpleGame(AbstractGame):
 
     @property
     def food(self) -> list[Food]:
-        """Вернуть список купленной еды."""
+        """
+        Возвращает список купленной еды.
+
+        :return: Список объектов Food в инвентаре.
+        """
         return self._food
 
     @property
     def medicine(self) -> list[Medicine]:
-        """Вернуть список купленных лекарств."""
+        """
+        Возвращает список купленных лекарств.
+
+        :return: Список объектов Medicine в инвентаре.
+        """
         return self._medicine
 
     def work(self) -> int:
-        """Заработать монеты с помощью кликера."""
+        """
+        Начисляет монеты за работу с помощью кликера.
+
+        :return: Количество заработанных монет.
+        """
         self.clicker.click()
         income = self.clicker.income_per_click
         self.coins += income
         return income
 
     def get_status(self) -> dict[str, Any]:
-        """Вернуть показатели питомца и количество монет."""
+        """
+        Возвращает показатели питомца и количество монет.
+
+        :return: Словарь с характеристиками питомца и балансом монет.
+        """
         return {
             **self.tamagochi.status,
             'coins': self.coins,
         }
 
     def buy_food(self) -> None:
-        """Купить еду и добавить её в инвентарь."""
+        """
+        Покупает выбранную еду и добавляет её в инвентарь.
+
+        :return: None.
+        :raises NotEnoughMoney: Если недостаточно монет для покупки.
+        """
         for index, food in enumerate(self.all_food, start=1):
             print(f'{index}. {food}')
 
-        choice = int(input('Выберите номер еды: '))
+        try:
+            choice = int(input('Выберите номер еды: '))
+        except ValueError:
+            print('Неверный номер еды')
+            return
         if not 1 <= choice <= len(self.all_food):
             print('Неверный номер еды')
             return
@@ -162,11 +196,20 @@ class SimpleGame(AbstractGame):
         print(f'Куплено: {selected_food.name}')
 
     def buy_medicine(self) -> None:
-        """Купить лекарство и добавить его в инвентарь."""
+        """
+        Покупает выбранное лекарство и добавляет его в инвентарь.
+
+        :return: None.
+        :raises NotEnoughMoney: Если недостаточно монет для покупки.
+        """
         for index, medicine in enumerate(self.all_medicine, start=1):
             print(f'{index}. {medicine}')
 
-        choice = int(input('Выберите номер лекарства: '))
+        try:
+            choice = int(input('Выберите номер лекарства: '))
+        except ValueError:
+            print('Неверный номер лекарства')
+            return
         if not 1 <= choice <= len(self.all_medicine):
             print('Неверный номер лекарства')
             return
@@ -190,7 +233,12 @@ class SimpleGame(AbstractGame):
         print(f'Куплено: {selected_medicine.name}')
 
     def feed_tamagochi(self) -> None:
-        """Покормить питомца едой из инвентаря."""
+        """
+        Кормит питомца выбранной едой из инвентаря.
+
+        :return: None.
+        :raises TamagochiIsGone: Если питомец погиб после кормления.
+        """
         if not self._food:
             print('В инвентаре нет еды')
             return
@@ -198,7 +246,11 @@ class SimpleGame(AbstractGame):
         for index, food in enumerate(self._food, start=1):
             print(f'{index}. {food}')
 
-        choice = int(input('Выберите номер еды: '))
+        try:
+            choice = int(input('Выберите номер еды: '))
+        except ValueError:
+            print('Неверный номер еды')
+            return
         if not 1 <= choice <= len(self._food):
             print('Неверный номер еды')
             return
@@ -207,7 +259,13 @@ class SimpleGame(AbstractGame):
         self.tamagochi.feed(selected_food)
 
     def heal_tamagochi(self) -> None:
-        """Вылечить питомца лекарством из инвентаря."""
+        """
+        Лечит питомца выбранным лекарством из инвентаря.
+
+        :return: None.
+        :raises ValueError: Если выбранное лекарство закончилось.
+        :raises TamagochiIsGone: Если питомец погиб после лечения.
+        """
         if not self._medicine:
             print('В инвентаре нет лекарств')
             return
@@ -215,7 +273,11 @@ class SimpleGame(AbstractGame):
         for index, medicine in enumerate(self._medicine, start=1):
             print(f'{index}. {medicine}')
 
-        choice = int(input('Выберите номер лекарства: '))
+        try:
+            choice = int(input('Выберите номер лекарства: '))
+        except ValueError:
+            print('Неверный номер лекарства')
+            return
         if not 1 <= choice <= len(self._medicine):
             print('Неверный номер лекарства')
             return
@@ -227,9 +289,19 @@ class SimpleGame(AbstractGame):
             self._medicine.pop(choice - 1)
 
     def rest_tamagochi(self) -> None:
-        """Дать питомцу отдохнуть."""
+        """
+        Даёт питомцу отдохнуть и восстановить энергию.
+
+        :return: None.
+        :raises TamagochiIsGone: Если питомец погиб после отдыха.
+        """
         self.tamagochi.rest()
 
     def play_with_tamagochi(self) -> None:
-        """Поиграть с питомцем."""
+        """
+        Организует игру с питомцем.
+
+        :return: None.
+        :raises TamagochiIsGone: Если питомец погиб после игры.
+        """
         self.tamagochi.play()
