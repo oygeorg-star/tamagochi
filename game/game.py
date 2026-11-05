@@ -57,7 +57,7 @@ class AbstractGame(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def feed_tamagochi(self, index: int = 0) -> None:
+    def feed_tamagochi(self, food: Food | int | None = None) -> None:
         """Кормит питомца выбранной едой."""
         raise NotImplementedError
 
@@ -197,12 +197,34 @@ class SimpleGame(AbstractGame):
             )
         )
 
-    def feed_tamagochi(self, index: int = 0) -> None:
+    def feed_tamagochi(self, food: Food | int | None = None) -> None:
         """Кормит питомца выбранной едой из инвентаря."""
-        food = self._food[index]
+        if isinstance(food, int):
+            index = food
+            selected_food = self._food[index]
+        elif food is None:
+            index = 0
+            selected_food = self._food[index]
+        else:
+            selected_food = food
+            index = next(
+                (
+                    i for i, item in enumerate(self._food)
+                    if item is food
+                ),
+                -1,
+            )
+
+            if index == -1:
+                try:
+                    index = self._food.index(food)
+                except ValueError as error:
+                    raise ValueError(
+                        "Еда отсутствует в инвентаре"
+                    ) from error
 
         try:
-            self.tamagochi.feed(food)
+            self.tamagochi.feed(selected_food)
         finally:
             self._food.pop(index)
 
