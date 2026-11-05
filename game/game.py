@@ -30,6 +30,11 @@ class AbstractGame(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def work(self) -> int:
+        """Выполняет работу и начисляет заработанные монеты."""
+        raise NotImplementedError
+
+    @abstractmethod
     def is_alive(self) -> bool:
         """Проверяет, жив ли питомец."""
         raise NotImplementedError
@@ -40,12 +45,14 @@ class AbstractGame(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def buy_food(self, food: Food) -> None:
+    def buy_food(self, food: Food | None = None) -> None:
         """Покупает еду и добавляет её в инвентарь."""
         raise NotImplementedError
 
     @abstractmethod
-    def buy_medicine(self, medicine: Medicine) -> None:
+    def buy_medicine(
+        self, medicine: Medicine | None = None
+    ) -> None:
         """Покупает лекарство и добавляет его в инвентарь."""
         raise NotImplementedError
 
@@ -124,6 +131,10 @@ class SimpleGame(AbstractGame):
         self.tamagochi.update()
         return income
 
+    def work(self) -> int:
+        """Выполняет работу и начисляет заработанные монеты."""
+        return self.click()
+
     def is_alive(self) -> bool:
         """Проверяет, жив ли питомец."""
         return self.tamagochi.is_alive()
@@ -139,8 +150,13 @@ class SimpleGame(AbstractGame):
             'coins': self.coins,
         }
 
-    def buy_food(self, food: Food) -> None:
+    def buy_food(self, food: Food | None = None) -> None:
         """Покупает еду и добавляет её в инвентарь."""
+        if food is None:
+            if not self.all_food:
+                raise ValueError("Нет доступной еды для покупки")
+            food = self.all_food[0]
+
         price = food.price
 
         if price < 0:
@@ -152,8 +168,15 @@ class SimpleGame(AbstractGame):
         self.coins -= price
         self._food.append(food)
 
-    def buy_medicine(self, medicine: Medicine) -> None:
+    def buy_medicine(
+        self, medicine: Medicine | None = None
+    ) -> None:
         """Покупает лекарство и добавляет его в инвентарь."""
+        if medicine is None:
+            if not self.all_medicine:
+                raise ValueError("Нет доступных лекарств для покупки")
+            medicine = self.all_medicine[0]
+
         price = medicine.price
 
         if price < 0:
