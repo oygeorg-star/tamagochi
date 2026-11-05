@@ -1,4 +1,3 @@
-
 """Модуль с интерфейсом и реализацией класса игры."""
 
 from abc import ABC, abstractmethod
@@ -57,7 +56,7 @@ class AbstractGame(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def feed_tamagochi(self, food: Food | int | None = None) -> None:
+    def feed_tamagochi(self, index: int) -> None:
         """Кормит питомца выбранной едой."""
         raise NotImplementedError
 
@@ -197,51 +196,12 @@ class SimpleGame(AbstractGame):
             )
         )
 
-    def feed_tamagochi(self, food: Food | int | None = None) -> None:
+    def feed_tamagochi(self, index: int) -> None:
         """Кормит питомца выбранной едой из инвентаря."""
-        if isinstance(food, int):
-            index = food
-            selected_food = self._food[index]
-        elif food is None:
-            if not self._food:
-                raise ValueError("В инвентаре нет еды")
-
-            for number, item in enumerate(self._food, start=1):
-                print(f"{number}. {item}")
-
-            print("Выберите номер еды: ", end="")
-            try:
-                choice = int(input())
-            except TypeError:
-                choice = int(input("Выберите номер еды: "))
-            except ValueError:
-                raise ValueError("Неверный номер еды") from None
-
-            if not 1 <= choice <= len(self._food):
-                raise ValueError("Неверный номер еды")
-
-            index = choice - 1
-            selected_food = self._food[index]
-        else:
-            selected_food = food
-            index = next(
-                (
-                    i for i, item in enumerate(self._food)
-                    if item is food
-                ),
-                -1,
-            )
-
-            if index == -1:
-                try:
-                    index = self._food.index(food)
-                except ValueError as error:
-                    raise ValueError(
-                        "Еда отсутствует в инвентаре"
-                    ) from error
+        food = self._food[index]
 
         try:
-            self.tamagochi.feed(selected_food)
+            self.tamagochi.feed(food)
         finally:
             self._food.pop(index)
 
