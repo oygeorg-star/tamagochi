@@ -166,13 +166,7 @@ class SimpleGame(AbstractGame):
             raise NotEnoughMoney('Недостаточно монет для покупки еды')
 
         self.coins -= price
-        self._food.append(
-            Food(
-                name=food.name,
-                satiety=food.satiety,
-                price=food.price,
-            )
-        )
+        self._food.append(food)
 
     def buy_medicine(
         self, medicine: Medicine | None = None
