@@ -9,6 +9,15 @@ from game.models import Food, Medicine
 from game.tamagochi import SimpleTamagochi
 
 
+def _prompt_input(prompt: str) -> str:
+    """Получает ввод с поддержкой разных способов тестирования."""
+    print(prompt, end="")
+    try:
+        return input()
+    except TypeError:
+        return input(prompt)
+
+
 def main() -> None:
     """Запускает игровой цикл Тамагочи-кликера."""
     all_food = [
@@ -69,7 +78,7 @@ def main() -> None:
         print("7. Отдых")
         print("0. Выход")
 
-        match input("Выберите действие: "):
+        match _prompt_input("Выберите действие: "):
             case "1":
                 try:
                     income = game.click()
@@ -83,7 +92,7 @@ def main() -> None:
                     print(f"{index}. {food}")
 
                 try:
-                    choice = int(input("Выберите номер еды: "))
+                    choice = int(_prompt_input("Выберите номер еды: "))
 
                     if not 1 <= choice <= len(all_food):
                         raise ValueError
@@ -104,7 +113,7 @@ def main() -> None:
                     print(f"{index}. {medicine}")
 
                 try:
-                    choice = int(input("Выберите номер лекарства: "))
+                    choice = int(_prompt_input("Выберите номер лекарства: "))
 
                     if not 1 <= choice <= len(all_medicine):
                         raise ValueError
@@ -128,7 +137,7 @@ def main() -> None:
                         print(f"{index}. {food}")
 
                     try:
-                        choice = int(input("Выберите номер еды: "))
+                        choice = int(_prompt_input("Выберите номер еды: "))
 
                         if not 1 <= choice <= len(game.food):
                             raise ValueError
@@ -150,7 +159,9 @@ def main() -> None:
                         print(f"{index}. {medicine}")
 
                     try:
-                        choice = int(input("Выберите номер лекарства: "))
+                        choice = int(
+                            _prompt_input("Выберите номер лекарства: ")
+                        )
 
                         if not 1 <= choice <= len(game.medicine):
                             raise ValueError
