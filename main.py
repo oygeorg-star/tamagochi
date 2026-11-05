@@ -9,12 +9,6 @@ from game.models import Food, Medicine
 from game.tamagochi import SimpleTamagochi
 
 
-def _prompt_input(prompt: str) -> str:
-    """Выводит приглашение и получает ввод пользователя."""
-    print(prompt, end="")
-    return input()
-
-
 def main() -> None:
     """Запускает игровой цикл Тамагочи-кликера."""
     all_food = [
@@ -75,7 +69,7 @@ def main() -> None:
         print("7. Отдых")
         print("0. Выход")
 
-        match _prompt_input("Выберите действие: "):
+        match input("Выберите действие: "):
             case "1":
                 try:
                     income = game.click()
@@ -89,7 +83,7 @@ def main() -> None:
                     print(f"{index}. {food}")
 
                 try:
-                    choice = int(_prompt_input("Выберите номер еды: "))
+                    choice = int(input("Выберите номер еды: "))
 
                     if not 1 <= choice <= len(all_food):
                         raise ValueError
@@ -110,7 +104,7 @@ def main() -> None:
                     print(f"{index}. {medicine}")
 
                 try:
-                    choice = int(_prompt_input("Выберите номер лекарства: "))
+                    choice = int(input("Выберите номер лекарства: "))
 
                     if not 1 <= choice <= len(all_medicine):
                         raise ValueError
@@ -134,7 +128,7 @@ def main() -> None:
                         print(f"{index}. {food}")
 
                     try:
-                        choice = int(_prompt_input("Выберите номер еды: "))
+                        choice = int(input("Выберите номер еды: "))
 
                         if not 1 <= choice <= len(game.food):
                             raise ValueError
@@ -156,9 +150,7 @@ def main() -> None:
                         print(f"{index}. {medicine}")
 
                     try:
-                        choice = int(
-                            _prompt_input("Выберите номер лекарства: ")
-                        )
+                        choice = int(input("Выберите номер лекарства: "))
 
                         if not 1 <= choice <= len(game.medicine):
                             raise ValueError
