@@ -1,4 +1,3 @@
-
 """Точка входа в игру Тамагочи-кликер."""
 
 import os
@@ -10,20 +9,26 @@ from game.models import Food, Medicine
 from game.tamagochi import SimpleTamagochi
 
 
+def _prompt_input(prompt: str) -> str:
+    """Выводит приглашение и получает ввод пользователя."""
+    print(prompt, end="")
+    return input()
+
+
 def main() -> None:
     """Запускает игровой цикл Тамагочи-кликера."""
     all_food = [
-        Food(name='Бургер', satiety=20, price=40),
-        Food(name='Салат', satiety=10, price=20),
-        Food(name='Яблоко', satiety=10, price=15)
+        Food(name="Бургер", satiety=20, price=40),
+        Food(name="Салат", satiety=10, price=20),
+        Food(name="Яблоко", satiety=10, price=15),
     ]
 
     all_medicine = [
         Medicine(
-            name='Ибупрофен',
+            name="Ибупрофен",
             price=30,
             heal_hp=20,
-            number_of_uses=2
+            number_of_uses=2,
         )
     ]
 
@@ -34,16 +39,16 @@ def main() -> None:
         tamagochi,
         clicker,
         all_food=all_food,
-        all_medicine=all_medicine
+        all_medicine=all_medicine,
     )
 
     print("Добро пожаловать в Тамагочи-кликер!")
-    output = ''
+    output = ""
 
     while True:
         if output:
             print(output)
-            output = ''
+            output = ""
 
         print(f"Сумка с едой: {game.food}")
         print(f"Сумка с лекарствами: {game.medicine}")
@@ -70,21 +75,21 @@ def main() -> None:
         print("7. Отдых")
         print("0. Выход")
 
-        match input("Выберите действие: "):
+        match _prompt_input("Выберите действие: "):
             case "1":
                 try:
                     income = game.click()
-                    output = f'Вы заработали {income} монет'
+                    output = f"Вы заработали {income} монет"
                 except TamagochiIsGone:
-                    print('Питомец погиб. Игра окончена.')
+                    print("Питомец погиб. Игра окончена.")
                     break
 
             case "2":
                 for index, food in enumerate(all_food, start=1):
-                    print(f'{index}. {food}')
+                    print(f"{index}. {food}")
 
                 try:
-                    choice = int(input('Выберите номер еды: '))
+                    choice = int(_prompt_input("Выберите номер еды: "))
 
                     if not 1 <= choice <= len(all_food):
                         raise ValueError
@@ -93,24 +98,19 @@ def main() -> None:
 
                     game.buy_food(selected_food)
 
-                    output = 'Еда успешно куплена'
+                    output = "Еда успешно куплена"
 
                 except ValueError:
-                    output = 'Неверный номер еды'
+                    output = "Неверный номер еды"
                 except NotEnoughMoney as error:
                     output = str(error)
 
             case "3":
-                for index, medicine in enumerate(
-                    all_medicine,
-                    start=1
-                ):
-                    print(f'{index}. {medicine}')
+                for index, medicine in enumerate(all_medicine, start=1):
+                    print(f"{index}. {medicine}")
 
                 try:
-                    choice = int(
-                        input('Выберите номер лекарства: ')
-                    )
+                    choice = int(_prompt_input("Выберите номер лекарства: "))
 
                     if not 1 <= choice <= len(all_medicine):
                         raise ValueError
@@ -119,81 +119,73 @@ def main() -> None:
 
                     game.buy_medicine(selected_medicine)
 
-                    output = 'Лекарство успешно куплено'
+                    output = "Лекарство успешно куплено"
 
                 except ValueError:
-                    output = 'Неверный номер лекарства'
+                    output = "Неверный номер лекарства"
                 except NotEnoughMoney as error:
                     output = str(error)
 
             case "4":
                 if not game.food:
-                    output = 'В инвентаре нет еды'
+                    output = "В инвентаре нет еды"
                 else:
-                    for index, food in enumerate(
-                        game.food,
-                        start=1
-                    ):
-                        print(f'{index}. {food}')
+                    for index, food in enumerate(game.food, start=1):
+                        print(f"{index}. {food}")
 
                     try:
-                        choice = int(
-                            input('Выберите номер еды: ')
-                        )
+                        choice = int(_prompt_input("Выберите номер еды: "))
 
                         if not 1 <= choice <= len(game.food):
                             raise ValueError
 
                         game.feed_tamagochi(choice - 1)
-                        output = 'Вы покормили питомца'
+                        output = "Вы покормили питомца"
 
                     except ValueError:
-                        output = 'Неверный номер еды'
+                        output = "Неверный номер еды"
                     except TamagochiIsGone:
-                        print('Питомец погиб. Игра окончена.')
+                        print("Питомец погиб. Игра окончена.")
                         break
 
             case "5":
                 if not game.medicine:
-                    output = 'В инвентаре нет лекарств'
+                    output = "В инвентаре нет лекарств"
                 else:
-                    for index, medicine in enumerate(
-                        game.medicine,
-                        start=1
-                    ):
-                        print(f'{index}. {medicine}')
+                    for index, medicine in enumerate(game.medicine, start=1):
+                        print(f"{index}. {medicine}")
 
                     try:
                         choice = int(
-                            input('Выберите номер лекарства: ')
+                            _prompt_input("Выберите номер лекарства: ")
                         )
 
                         if not 1 <= choice <= len(game.medicine):
                             raise ValueError
 
                         game.heal_tamagochi(choice - 1)
-                        output = 'Вы вылечили питомца'
+                        output = "Вы вылечили питомца"
 
                     except ValueError:
-                        output = 'Неверный номер лекарства'
+                        output = "Неверный номер лекарства"
                     except TamagochiIsGone:
-                        print('Питомец погиб. Игра окончена.')
+                        print("Питомец погиб. Игра окончена.")
                         break
 
             case "6":
                 try:
                     game.play_with_tamagochi()
-                    output = 'Вы поиграли с питомцем'
+                    output = "Вы поиграли с питомцем"
                 except TamagochiIsGone:
-                    print('Питомец погиб. Игра окончена.')
+                    print("Питомец погиб. Игра окончена.")
                     break
 
             case "7":
                 try:
                     game.rest_tamagochi()
-                    output = 'Питомец отдохнул'
+                    output = "Питомец отдохнул"
                 except TamagochiIsGone:
-                    print('Питомец погиб. Игра окончена.')
+                    print("Питомец погиб. Игра окончена.")
                     break
 
             case "0":
@@ -203,10 +195,10 @@ def main() -> None:
                 output = "Неверная команда"
 
         if not game.is_alive():
-            print('Питомец погиб. Игра окончена.')
+            print("Питомец погиб. Игра окончена.")
             break
 
-        os.system('cls' if os.name == 'nt' else 'clear')
+        os.system("cls" if os.name == "nt" else "clear")
 
 
 if __name__ == "__main__":

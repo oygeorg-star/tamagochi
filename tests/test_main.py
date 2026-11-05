@@ -4,7 +4,7 @@ import main
 
 
 def test_main_exits_on_zero(monkeypatch):
-    monkeypatch.setattr('builtins.input', lambda _: '0')
+    monkeypatch.setattr('builtins.input', lambda: '0')
 
     main.main()
 
@@ -13,7 +13,7 @@ def test_main_handles_invalid_command(monkeypatch, capsys):
     commands = iter(['abc', '0'])
     monkeypatch.setattr(
         'builtins.input',
-        lambda _: next(commands),
+        lambda: next(commands),
     )
     monkeypatch.setattr(main.os, 'system', lambda _: 0)
 
@@ -42,7 +42,7 @@ def test_main_handles_invalid_purchase(
 
     monkeypatch.setattr(
         'builtins.input',
-        lambda _: next(commands),
+        lambda: next(commands),
     )
     monkeypatch.setattr(main.os, 'system', lambda _: 0)
 
@@ -56,7 +56,7 @@ def test_main_work_action(monkeypatch, capsys):
     commands = iter(['1', '0'])
     monkeypatch.setattr(
         'builtins.input',
-        lambda _: next(commands),
+        lambda: next(commands),
     )
     monkeypatch.setattr(main.os, 'system', lambda _: 0)
 
