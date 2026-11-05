@@ -57,7 +57,7 @@ class AbstractGame(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def feed_tamagochi(self, index: int) -> None:
+    def feed_tamagochi(self, index: int = 0) -> None:
         """Кормит питомца выбранной едой."""
         raise NotImplementedError
 
@@ -197,7 +197,7 @@ class SimpleGame(AbstractGame):
             )
         )
 
-    def feed_tamagochi(self, index: int) -> None:
+    def feed_tamagochi(self, index: int = 0) -> None:
         """Кормит питомца выбранной едой из инвентаря."""
         food = self._food[index]
 

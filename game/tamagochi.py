@@ -173,9 +173,9 @@ class SimpleTamagochi(AbstractTamagochi):
         if medicine.is_empty():
             raise ValueError('Лекарство закончилось')
 
-        self.hp = min(100, self.hp + medicine.heal_hp)
         medicine.uses += 1
         self.update()
+        self.hp = min(100, self.hp + medicine.heal_hp)
 
     def update(self) -> None:
         """
