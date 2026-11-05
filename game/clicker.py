@@ -8,7 +8,7 @@ class AbstractClicker(ABC):
     """Интерфейс для кликера."""
 
     @abstractmethod
-    def __init__(self, income_per_click: int) -> None:
+    def __init__(self) -> None:
         """Инициализирует кликер."""
         raise NotImplementedError
 
@@ -47,7 +47,8 @@ class SimpleRandomClicker(AbstractClicker):
         """Устанавливает диапазон случайного дохода."""
         if min_income > max_income:
             raise ValueError(
-                'Минимальный доход не может быть больше максимального'
+                "Минимальный доход не может быть "
+                "больше максимального"
             )
 
         self.min_income = min_income
@@ -61,7 +62,4 @@ class SimpleRandomClicker(AbstractClicker):
 
     def click(self) -> None:
         """Генерирует случайный доход за один клик."""
-        self._income_per_click = randint(
-            self.min_income,
-            self.max_income
-        )
+        self._income_per_click = randint(self.min_income, self.max_income)
