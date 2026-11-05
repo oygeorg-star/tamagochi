@@ -24,34 +24,22 @@ class AbstractGame(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def click(self) -> int:
-        """Выполняет клик и начисляет заработанные монеты."""
-        raise NotImplementedError
-
-    @abstractmethod
     def work(self) -> int:
         """Выполняет работу и начисляет заработанные монеты."""
         raise NotImplementedError
 
     @abstractmethod
-    def is_alive(self) -> bool:
-        """Проверяет, жив ли питомец."""
+    def click(self) -> int:
+        """Выполняет клик и начисляет заработанные монеты."""
         raise NotImplementedError
 
     @abstractmethod
-    def is_sick(self) -> bool:
-        """Проверяет, болеет ли питомец."""
-        raise NotImplementedError
-
-    @abstractmethod
-    def buy_food(self, food: Food | None = None) -> None:
+    def buy_food(self, food: Food) -> None:
         """Покупает еду и добавляет её в инвентарь."""
         raise NotImplementedError
 
     @abstractmethod
-    def buy_medicine(
-        self, medicine: Medicine | None = None
-    ) -> None:
+    def buy_medicine(self, medicine: Medicine) -> None:
         """Покупает лекарство и добавляет его в инвентарь."""
         raise NotImplementedError
 
@@ -73,6 +61,16 @@ class AbstractGame(ABC):
     @abstractmethod
     def play_with_tamagochi(self) -> None:
         """Играет с питомцем."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def is_alive(self) -> bool:
+        """Проверяет, жив ли питомец."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def is_sick(self) -> bool:
+        """Проверяет, болеет ли питомец."""
         raise NotImplementedError
 
     @abstractmethod
@@ -122,6 +120,27 @@ class SimpleGame(AbstractGame):
         """Возвращает список купленных лекарств."""
         return self._medicine
 
+    @staticmethod
+    def _select_index(items: list[Any], item_name: str) -> int:
+        """Запрашивает номер товара и возвращает его индекс."""
+        if not items:
+            raise ValueError(f'Список {item_name} пуст')
+
+        for number, item in enumerate(items, start=1):
+            print(f'{number}. {item}')
+
+        try:
+            choice = int(input(f'Выберите номер {item_name}: '))
+        except ValueError:
+            raise ValueError(
+                f'Неверный номер {item_name}'
+            ) from None
+
+        if not 1 <= choice <= len(items):
+            raise ValueError(f'Неверный номер {item_name}')
+
+        return choice - 1
+
     def click(self) -> int:
         """Выполняет клик, начисляет монеты и обновляет питомца."""
         self.clicker.click()
@@ -131,7 +150,7 @@ class SimpleGame(AbstractGame):
         return income
 
     def work(self) -> int:
-        """Выполняет работу и начисляет заработанные монеты."""
+        """Выполняет работу с помощью кликера."""
         return self.click()
 
     def is_alive(self) -> bool:
@@ -150,11 +169,10 @@ class SimpleGame(AbstractGame):
         }
 
     def buy_food(self, food: Food | None = None) -> None:
-        """Покупает еду и добавляет её в инвентарь."""
+        """Покупает выбранную еду и добавляет её в инвентарь."""
         if food is None:
-            if not self.all_food:
-                raise ValueError("Нет доступной еды для покупки")
-            food = self.all_food[0]
+            index = self._select_index(self.all_food, 'еды')
+            food = self.all_food[index]
 
         price = food.price
 
@@ -168,13 +186,16 @@ class SimpleGame(AbstractGame):
         self._food.append(food)
 
     def buy_medicine(
-        self, medicine: Medicine | None = None
+        self,
+        medicine: Medicine | None = None
     ) -> None:
-        """Покупает лекарство и добавляет его в инвентарь."""
+        """Покупает выбранное лекарство и добавляет его в инвентарь."""
         if medicine is None:
-            if not self.all_medicine:
-                raise ValueError("Нет доступных лекарств для покупки")
-            medicine = self.all_medicine[0]
+            index = self._select_index(
+                self.all_medicine,
+                'лекарства'
+            )
+            medicine = self.all_medicine[index]
 
         price = medicine.price
 
@@ -196,8 +217,11 @@ class SimpleGame(AbstractGame):
             )
         )
 
-    def feed_tamagochi(self, index: int) -> None:
+    def feed_tamagochi(self, index: int | None = None) -> None:
         """Кормит питомца выбранной едой из инвентаря."""
+        if index is None:
+            index = self._select_index(self._food, 'еды')
+
         food = self._food[index]
 
         try:
@@ -205,8 +229,11 @@ class SimpleGame(AbstractGame):
         finally:
             self._food.pop(index)
 
-    def heal_tamagochi(self, index: int) -> None:
-        """Лечит питомца выбранным лекарством."""
+    def heal_tamagochi(self, index: int | None = None) -> None:
+        """Лечит питомца выбранным лекарством из инвентаря."""
+        if index is None:
+            index = self._select_index(self._medicine, 'лекарства')
+
         medicine = self._medicine[index]
 
         try:

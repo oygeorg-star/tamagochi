@@ -81,51 +81,27 @@ def main() -> None:
         match _prompt_input("Выберите действие: "):
             case "1":
                 try:
-                    income = game.click()
+                    income = game.work()
                     output = f"Вы заработали {income} монет"
                 except TamagochiIsGone:
                     print("Питомец погиб. Игра окончена.")
                     break
 
             case "2":
-                for index, food in enumerate(all_food, start=1):
-                    print(f"{index}. {food}")
-
                 try:
-                    choice = int(_prompt_input("Выберите номер еды: "))
-
-                    if not 1 <= choice <= len(all_food):
-                        raise ValueError
-
-                    selected_food = all_food[choice - 1]
-
-                    game.buy_food(selected_food)
-
+                    game.buy_food()
                     output = "Еда успешно куплена"
-
-                except ValueError:
-                    output = "Неверный номер еды"
+                except ValueError as error:
+                    output = str(error)
                 except NotEnoughMoney as error:
                     output = str(error)
 
             case "3":
-                for index, medicine in enumerate(all_medicine, start=1):
-                    print(f"{index}. {medicine}")
-
                 try:
-                    choice = int(_prompt_input("Выберите номер лекарства: "))
-
-                    if not 1 <= choice <= len(all_medicine):
-                        raise ValueError
-
-                    selected_medicine = all_medicine[choice - 1]
-
-                    game.buy_medicine(selected_medicine)
-
+                    game.buy_medicine()
                     output = "Лекарство успешно куплено"
-
-                except ValueError:
-                    output = "Неверный номер лекарства"
+                except ValueError as error:
+                    output = str(error)
                 except NotEnoughMoney as error:
                     output = str(error)
 
@@ -133,20 +109,11 @@ def main() -> None:
                 if not game.food:
                     output = "В инвентаре нет еды"
                 else:
-                    for index, food in enumerate(game.food, start=1):
-                        print(f"{index}. {food}")
-
                     try:
-                        choice = int(_prompt_input("Выберите номер еды: "))
-
-                        if not 1 <= choice <= len(game.food):
-                            raise ValueError
-
-                        game.feed_tamagochi(choice - 1)
+                        game.feed_tamagochi()
                         output = "Вы покормили питомца"
-
-                    except ValueError:
-                        output = "Неверный номер еды"
+                    except ValueError as error:
+                        output = str(error)
                     except TamagochiIsGone:
                         print("Питомец погиб. Игра окончена.")
                         break
@@ -155,22 +122,11 @@ def main() -> None:
                 if not game.medicine:
                     output = "В инвентаре нет лекарств"
                 else:
-                    for index, medicine in enumerate(game.medicine, start=1):
-                        print(f"{index}. {medicine}")
-
                     try:
-                        choice = int(
-                            _prompt_input("Выберите номер лекарства: ")
-                        )
-
-                        if not 1 <= choice <= len(game.medicine):
-                            raise ValueError
-
-                        game.heal_tamagochi(choice - 1)
+                        game.heal_tamagochi()
                         output = "Вы вылечили питомца"
-
-                    except ValueError:
-                        output = "Неверный номер лекарства"
+                    except ValueError as error:
+                        output = str(error)
                     except TamagochiIsGone:
                         print("Питомец погиб. Игра окончена.")
                         break
