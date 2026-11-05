@@ -203,7 +203,24 @@ class SimpleGame(AbstractGame):
             index = food
             selected_food = self._food[index]
         elif food is None:
-            index = 0
+            if not self._food:
+                raise ValueError("В инвентаре нет еды")
+
+            for number, item in enumerate(self._food, start=1):
+                print(f"{number}. {item}")
+
+            print("Выберите номер еды: ", end="")
+            try:
+                choice = int(input())
+            except TypeError:
+                choice = int(input("Выберите номер еды: "))
+            except ValueError:
+                raise ValueError("Неверный номер еды") from None
+
+            if not 1 <= choice <= len(self._food):
+                raise ValueError("Неверный номер еды")
+
+            index = choice - 1
             selected_food = self._food[index]
         else:
             selected_food = food
