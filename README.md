@@ -45,12 +45,19 @@ python main.py
 ## Структура проекта
 
 ```text
+├── .github/
+│   └── workflows/
+│       └── default.yml
 ├── game/
 │   ├── clicker.py
 │   ├── exceptions.py
 │   ├── game.py
 │   ├── models.py
 │   └── tamagochi.py
+├── tests/
+│   ├── test_game.py
+│   ├── test_main.py
+│   └── test_tamagochi.py
 ├── .gitignore
 ├── main.py
 └── README.md
@@ -67,23 +74,32 @@ python main.py
 
 ## Проверка кода
 
-Для проверки синтаксиса:
+Для проверки синтаксиса Python выполните:
 
 ```bash
-python -m py_compile main.py game/*.py
+python -m py_compile main.py game/*.py tests/*.py
 ```
 
-Для проверки стиля с помощью Ruff:
+Для проверки стиля кода с помощью Ruff:
 
 ```bash
-python -m ruff check main.py game
+python -m ruff check main.py game tests
 ```
 
-При установленном Flake8 можно выполнить дополнительную проверку:
+Для дополнительной проверки с помощью Flake8 (при установленном пакете):
 
 ```bash
-python -m flake8 main.py game
+python -m flake8 main.py game tests
 ```
+
+Для запуска автоматических тестов используйте Pytest:
+
+```bash
+python -m pytest -v
+```
+
+Тесты проверяют работу игровой логики, взаимодействие с питомцем, покупки, инвентарь и основной игровой цикл.
+
 
 ---
 
@@ -177,43 +193,49 @@ ruff check ./game
 
 Давайте разберем основные сущности и интерфейсы:
 
-1. `AbstractClicker` - интерфейс для кликера. Методы:
-   - `def click(self) -> None:` - основная логика кликера
-   - `def __init__(self, income_per_click: int) -> None:` - инициализация кликера
+1. `AbstractClicker` — интерфейс для кликера. Методы и свойства:
+   - `def __init__(self, income_per_click: int) -> None:` — инициализация кликера.
+   - `def click(self) -> None:` — выполнение клика для получения монет.
+   - `income_per_click: int` — свойство для получения количества монет за один клик.
 
-2. `AbstractGame` - интерфейс для сущности игры. Методы:
-   - `def __init__(self, tamagochi: AbstractTamagochi, clicker: AbstractClicker):` - инициализация игры
-   - `def click(self):` - логика действия "клик"
-   - `def buy_food(self, food: Food, price: int):` - логика действия "покупка еды"
-   - `def buy_medicine(self, medicine: Medicine, price: int):` - логика действия "купить лекарство"
-   - `def feed_tamagochi(self, index: int):` - логика действия "покормить питомца"
-   - `def heal_tamagochi(self, index: int):` - логика действия "вылечить питомца"
-   - `def rest_tamagochi(self):` - логика действия "отдых"
-   - `def play_with_tamagochi(self):` - логика действия "поиграть с питомцем"
-   - `def get_status(self):` - получение статуса игры
-   - `def food(self) -> list[Food]:` - свойство для доступа к еде
-   - `def medicine(self) -> list[Medicine]:` - свойство для доступа к лекарствам
+2. `AbstractGame` — интерфейс для сущности игры. Методы и свойства:
+   - `def __init__(self, tamagochi: AbstractTamagochi, clicker: AbstractClicker, all_food: list[Food], all_medicine: list[Medicine]) -> None:` — инициализация игры с передачей питомца, кликера и доступных товаров.
+   - `def click(self) -> int:` — выполнение клика, начисление монет и обновление состояния питомца.
+   - `def buy_food(self, food: Food) -> None:` — покупка еды с проверкой достаточности средств.
+   - `def buy_medicine(self, medicine: Medicine) -> None:` — покупка лекарства с проверкой достаточности средств.
+   - `def feed_tamagochi(self, index: int) -> None:` — кормление питомца выбранной едой из инвентаря.
+   - `def heal_tamagochi(self, index: int) -> None:` — лечение питомца выбранным лекарством из инвентаря.
+   - `def rest_tamagochi(self) -> None:` — отдых питомца.
+   - `def play_with_tamagochi(self) -> None:` — игра с питомцем.
+   - `def is_alive(self) -> bool:` — проверка, жив ли питомец.
+   - `def is_sick(self) -> bool:` — проверка, болеет ли питомец.
+   - `def get_status(self) -> dict[str, Any]:` — получение текущих характеристик питомца и количества монет.
+   - `food: list[Food]` — свойство для доступа к имеющейся еде.
+   - `medicine: list[Medicine]` — свойство для доступа к имеющимся лекарствам.
 
-3. `Food` - класс-модель для представления еды. Имеет следующие поля-аттрибуты:
-   - `name: str` - наименование еды
-   - `satiety: int` - сколько насыщения дает еда
+3. `Food` — класс-модель для представления еды. Имеет следующие поля-атрибуты:
+   - `name: str` — наименование еды.
+   - `satiety: int` — количество единиц голода, которое утоляет еда.
+   - `price: int` — стоимость еды.
 
-4. `Medicine` - класс-модель для представления лекарства. Имеет следующие поля-аттрибуты:
-   - `name: str` - наименование лекарства
-   - `heal_hp: int` - сколько лечит здоровья
-   - `number_of_uses: int` - максимальное количество использований лекарства
-   - `uses: int = 0` - текущее количество использований. Не может быть больше `number_of_uses`
+
+4. `Medicine` — класс-модель для представления лекарства. Имеет следующие поля-атрибуты:
+   - `name: str` — наименование лекарства.
+   - `price: int` — стоимость лекарства.
+   - `heal_hp: int` — количество восстанавливаемых единиц здоровья.
+   - `number_of_uses: int` — максимальное количество использований лекарства.
+   - `uses: int = 0` — текущее количество использований. Не может быть больше `number_of_uses`.
 
    Методы:
-   - `def is_empty(self) -> bool:` - логика проверки остались ли еще использования лекарства
+   - `def is_empty(self) -> bool:` — проверка, закончились ли доступные использования лекарства.
 
-5. `AbstractTamagochi` - интерфейс для тамагочи. Методы:
-   - `def feed(self, food: Food) -> None:` - накормить питомца
-   - `def play(self) -> None:` - поиграть с питомцем
-   - `def rest(self) -> None:` - отдохнуть
-   - `def heal(self, medicine: Medicine) -> None:` - вылечить питомца
-   - `def status(self) -> dict[str, int]:` - получить данные о всех показателях питомца
-   - `def is_alive(self) -> bool:` - метод для проверки жив ли питомец
-   - `def is_sick(self) -> bool:` - метод для проверки болен ли питомец
-   - `def update(self) -> None:` - метод для обновления состояния питомца. Должен вызываться каждый тик (или каждое действие)
 
+5. `AbstractTamagochi` — интерфейс для тамагочи. Методы и свойства:
+   - `def feed(self, food: Food) -> None:` — кормление питомца выбранной едой.
+   - `def play(self) -> None:` — игра с питомцем.
+   - `def rest(self) -> None:` — отдых питомца.
+   - `def heal(self, medicine: Medicine) -> None:` — лечение питомца выбранным лекарством.
+   - `status: dict[str, int]` — свойство для получения всех показателей питомца.
+   - `def is_alive(self) -> bool:` — проверка, жив ли питомец.
+   - `def is_sick(self) -> bool:` — проверка, болеет ли питомец.
+   - `def update(self) -> None:` — обновление состояния питомца. Вызывается после игрового действия.

@@ -1,3 +1,6 @@
+
+"""Точка входа в игру Тамагочи-кликер."""
+
 import os
 
 from game.clicker import SimpleRandomClicker
@@ -8,14 +11,7 @@ from game.tamagochi import SimpleTamagochi
 
 
 def main() -> None:
-    """
-    Запускает игровой цикл Тамагочи-кликера.
-
-    Обрабатывает команды пользователя и завершает игру
-    при гибели питомца или выборе выхода.
-
-    :return: None.
-    """
+    """Запускает игровой цикл Тамагочи-кликера."""
     all_food = [
         Food(name='Бургер', satiety=20, price=40),
         Food(name='Салат', satiety=10, price=20),
@@ -23,11 +19,17 @@ def main() -> None:
     ]
 
     all_medicine = [
-        Medicine(name='Ибупрофен', price=30, heal_hp=20, number_of_uses=2)
+        Medicine(
+            name='Ибупрофен',
+            price=30,
+            heal_hp=20,
+            number_of_uses=2
+        )
     ]
 
     tamagochi = SimpleTamagochi()
     clicker = SimpleRandomClicker(10, 20)
+
     game = SimpleGame(
         tamagochi,
         clicker,
@@ -47,13 +49,18 @@ def main() -> None:
         print(f"Сумка с лекарствами: {game.medicine}")
 
         status = game.get_status()
+
         print(
-            f"\nСтатус: голод {status['hunger']}, здоровье {status['hp']}, "
-            f"энергия {status['energy']}, монет {status['coins']}\n"
+            f"\nСтатус: голод {status['hunger']}, "
+            f"здоровье {status['hp']}, "
+            f"энергия {status['energy']}, "
+            f"монет {status['coins']}\n"
         )
-        if game.tamagochi.is_sick():
+
+        if game.is_sick():
             print("=======Тамагочи болеет======")
             print("=======Отдых действует менее эффективно=======")
+
         print("1. Пойти на работу")
         print("2. Купить еду")
         print("3. Купить лекарство")
@@ -66,73 +73,112 @@ def main() -> None:
         match input("Выберите действие: "):
             case "1":
                 try:
-                    income = game.work()
+                    income = game.click()
                     output = f'Вы заработали {income} монет'
-                    game.tamagochi.update()
                 except TamagochiIsGone:
                     print('Питомец погиб. Игра окончена.')
                     break
 
             case "2":
+                for index, food in enumerate(all_food, start=1):
+                    print(f'{index}. {food}')
+
                 try:
-                    food_count = len(game.food)
-                    game.buy_food()
-                    if len(game.food) > food_count:
-                        output = 'Еда успешно куплена'
-                    else:
-                        output = 'Покупка еды не выполнена'
+                    choice = int(input('Выберите номер еды: '))
+
+                    if not 1 <= choice <= len(all_food):
+                        raise ValueError
+
+                    selected_food = all_food[choice - 1]
+
+                    game.buy_food(selected_food)
+
+                    output = 'Еда успешно куплена'
+
+                except ValueError:
+                    output = 'Неверный номер еды'
                 except NotEnoughMoney as error:
                     output = str(error)
 
             case "3":
+                for index, medicine in enumerate(
+                    all_medicine,
+                    start=1
+                ):
+                    print(f'{index}. {medicine}')
+
                 try:
-                    medicine_count = len(game.medicine)
-                    game.buy_medicine()
-                    if len(game.medicine) > medicine_count:
-                        output = 'Лекарство успешно куплено'
-                    else:
-                        output = 'Покупка лекарства не выполнена'
+                    choice = int(
+                        input('Выберите номер лекарства: ')
+                    )
+
+                    if not 1 <= choice <= len(all_medicine):
+                        raise ValueError
+
+                    selected_medicine = all_medicine[choice - 1]
+
+                    game.buy_medicine(selected_medicine)
+
+                    output = 'Лекарство успешно куплено'
+
+                except ValueError:
+                    output = 'Неверный номер лекарства'
                 except NotEnoughMoney as error:
                     output = str(error)
 
             case "4":
-                try:
-                    if not game.food:
-                        output = 'В инвентаре нет еды'
-                    else:
-                        food_count = len(game.food)
-                        game.feed_tamagochi()
-                        if len(game.food) < food_count:
-                            output = 'Вы покормили питомца'
-                except ValueError as error:
-                    output = str(error)
-                except TamagochiIsGone:
-                    print('Питомец погиб. Игра окончена.')
-                    break
+                if not game.food:
+                    output = 'В инвентаре нет еды'
+                else:
+                    for index, food in enumerate(
+                        game.food,
+                        start=1
+                    ):
+                        print(f'{index}. {food}')
+
+                    try:
+                        choice = int(
+                            input('Выберите номер еды: ')
+                        )
+
+                        if not 1 <= choice <= len(game.food):
+                            raise ValueError
+
+                        game.feed_tamagochi(choice - 1)
+                        output = 'Вы покормили питомца'
+
+                    except ValueError:
+                        output = 'Неверный номер еды'
+                    except TamagochiIsGone:
+                        print('Питомец погиб. Игра окончена.')
+                        break
 
             case "5":
-                try:
-                    if not game.medicine:
-                        output = 'В инвентаре нет лекарств'
-                    else:
-                        medicine_count = len(game.medicine)
-                        uses_before = [
-                            medicine.uses
-                            for medicine in game.medicine
-                        ]
-                        game.heal_tamagochi()
-                        uses_after = [
-                            medicine.uses
-                            for medicine in game.medicine
-                        ]
-                        if (len(game.medicine) < medicine_count
-                                or uses_before != uses_after):
-                            output = 'Вы вылечили питомца'
-                        else:
-                            output = 'Лечение не выполнено'
-                except TamagochiIsGone:
-                    print('Питомец погиб. Игра окончена.')
-                    break
+                if not game.medicine:
+                    output = 'В инвентаре нет лекарств'
+                else:
+                    for index, medicine in enumerate(
+                        game.medicine,
+                        start=1
+                    ):
+                        print(f'{index}. {medicine}')
+
+                    try:
+                        choice = int(
+                            input('Выберите номер лекарства: ')
+                        )
+
+                        if not 1 <= choice <= len(game.medicine):
+                            raise ValueError
+
+                        game.heal_tamagochi(choice - 1)
+                        output = 'Вы вылечили питомца'
+
+                    except ValueError:
+                        output = 'Неверный номер лекарства'
+                    except TamagochiIsGone:
+                        print('Питомец погиб. Игра окончена.')
+                        break
 
             case "6":
                 try:
@@ -152,10 +198,11 @@ def main() -> None:
 
             case "0":
                 break
+
             case _:
                 output = "Неверная команда"
 
-        if not game.tamagochi.is_alive():
+        if not game.is_alive():
             print('Питомец погиб. Игра окончена.')
             break
 
